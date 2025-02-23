@@ -1,10 +1,3 @@
-// Здесь код для рендерера (frontend)
-import { StockTable } from './components/stock-table';
-import { StockGraph } from './components/stock-graph';
-
-// Проверяем, что компоненты зарегистрированы
-console.log('Registered custom elements:', customElements.get('stock-table'), customElements.get('stock-graph'));
-
 class StockApp {
     private stockTable: StockTableElement;
     private stockGraph: StockGraphElement;

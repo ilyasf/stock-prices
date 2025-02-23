@@ -114,79 +114,10 @@ class StockGraph extends HTMLElement implements StockGraphElement {
 
         if (this.renderer) {
             // Используем WebGL рендерер
-            console.log('Calling render_graph with WebGL renderer');
+            console.log('Calling render_graph with WebGL renderer ', this.canvas.width, this.canvas.height);
             this.renderer.render_graph(new Float32Array(prices), this.canvas.width, this.canvas.height);
-        } else {
-            // Fallback на Canvas API
-            this.renderWithCanvas(prices);
-        }
-    }
-
-    private renderWithCanvas(prices: number[]) {
-        if (!this.canvas) return;
-        const ctx = this.canvas.getContext('2d');
-        if (!ctx) return;
-
-        // Очищаем canvas
-        ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-        if (prices.length < 2) return;
-
-        // Находим min и max для масштабирования
-        const min = Math.min(...prices);
-        const max = Math.max(...prices);
-        const range = max - min;
-
-        // Добавляем отступы
-        const padding = 40;
-        const graphWidth = this.canvas.width - padding * 2;
-        const graphHeight = this.canvas.height - padding * 2;
-
-        // Рисуем оси
-        ctx.beginPath();
-        ctx.strokeStyle = '#ccc';
-        ctx.lineWidth = 1;
-        
-        // Ось Y
-        ctx.moveTo(padding, padding);
-        ctx.lineTo(padding, this.canvas.height - padding);
-        
-        // Ось X
-        ctx.moveTo(padding, this.canvas.height - padding);
-        ctx.lineTo(this.canvas.width - padding, this.canvas.height - padding);
-        
-        ctx.stroke();
-
-        // Рисуем график
-        ctx.beginPath();
-        ctx.strokeStyle = '#2196F3';
-        ctx.lineWidth = 2;
-
-        prices.forEach((price, index) => {
-            const x = padding + (index / (prices.length - 1)) * graphWidth;
-            const y = padding + (1 - (price - min) / range) * graphHeight;
-
-            if (index === 0) {
-                ctx.moveTo(x, y);
-            } else {
-                ctx.lineTo(x, y);
-            }
-        });
-
-        ctx.stroke();
-
-        // Добавляем метки цен
-        ctx.fillStyle = '#666';
-        ctx.font = '12px Arial';
-        ctx.textAlign = 'right';
-        
-        const priceStep = range / 5;
-        for (let i = 0; i <= 5; i++) {
-            const price = min + (priceStep * i);
-            const y = padding + (1 - (i / 5)) * graphHeight;
-            ctx.fillText(price.toFixed(2), padding - 5, y + 4);
-        }
-    }
+        } 
+    }    
 
     private checkWebGLSupport() {
         const canvas = document.createElement('canvas');
