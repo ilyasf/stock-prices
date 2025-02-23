@@ -3,6 +3,7 @@ import wasmInit, { StockRenderer } from '../pkg/stock_renderer.js';
 class StockGraph extends HTMLElement implements StockGraphElement {
     private canvas: HTMLCanvasElement | null = null;
     private renderer: StockRenderer | null = null;
+    private webGLMode: 'webgl1' | 'webgl2' | undefined;
 
     constructor() {
         super();
@@ -25,23 +26,33 @@ class StockGraph extends HTMLElement implements StockGraphElement {
             this.checkWebGLSupport();
             
             // Инициализируем WASM модуль
-            await wasmInit();
             
             // Генерируем уникальный ID для компонента
             const componentId = `stock-graph-${Math.random().toString(36).substr(2, 9)}`;
             this.id = componentId;
+            this.canvas?.setAttribute('id', `${componentId}`);
             
             // Создаем рендерер, передавая ID компонента
             console.log('Creating WebGL renderer with component ID:', componentId);
-            this.renderer = new StockRenderer(componentId);
-            console.log('WebGL renderer initialized');
-
+            
             // Устанавливаем размеры canvas
             if (this.canvas) {
                 const rect = this.getBoundingClientRect();
                 this.canvas.width = Math.max(rect.width || 800, 100);
                 this.canvas.height = Math.max(rect.height || 400, 100);
+                const ctx = this.canvas.getContext('2d');
+                if (ctx) {
+                    ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                    ctx.fillStyle = '#000';
+                    ctx.font = '20px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('Loading...', this.canvas.width / 2, this.canvas.height / 2);
+                }
                 console.log('Canvas size:', this.canvas.width, 'x', this.canvas.height);
+                                
+                await wasmInit();
+                this.renderer = new StockRenderer(componentId);
+                console.log('WebGL renderer initialized');
             }
         } catch (error) {
             console.error('Failed to initialize WebGL renderer:', error);
@@ -84,10 +95,7 @@ class StockGraph extends HTMLElement implements StockGraphElement {
                     background: white;
                 }
             </style>
-            <canvas></canvas>
-        `;
-
-        this.canvas = this.shadowRoot.querySelector('canvas');
+        `;        
     }
 
     disconnectedCallback() {
@@ -106,6 +114,7 @@ class StockGraph extends HTMLElement implements StockGraphElement {
 
         if (this.renderer) {
             // Используем WebGL рендерер
+            console.log('Calling render_graph with WebGL renderer');
             this.renderer.render_graph(new Float32Array(prices), this.canvas.width, this.canvas.height);
         } else {
             // Fallback на Canvas API
@@ -191,6 +200,9 @@ class StockGraph extends HTMLElement implements StockGraphElement {
                 version: gl2.getParameter(gl2.VERSION),
                 shadingLanguageVersion: gl2.getParameter(gl2.SHADING_LANGUAGE_VERSION)
             });
+            this.canvas = canvas;
+            this.shadowRoot?.appendChild(canvas);
+            this.webGLMode = 'webgl2';
             return;
         }
 
@@ -203,6 +215,9 @@ class StockGraph extends HTMLElement implements StockGraphElement {
                 version: gl1.getParameter(gl1.VERSION),
                 shadingLanguageVersion: gl1.getParameter(gl1.SHADING_LANGUAGE_VERSION)
             });
+            this.canvas = canvas;
+            this.shadowRoot?.appendChild(canvas);  
+            this.webGLMode = 'webgl1';          
             return;
         }
 
@@ -215,4 +230,4 @@ if (!customElements.get('stock-graph')) {
     customElements.define('stock-graph', StockGraph);
 }
 
-export { StockGraph }; 
+export { StockGraph };

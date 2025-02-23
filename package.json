@@ -8,7 +8,7 @@
     "build": "npm run build:main && npm run build:renderer && npm run build:rust && node copy-files.js",
     "build:main": "tsc -p tsconfig.main.json",
     "build:renderer": "tsc -p tsconfig.renderer.json",
-    "build:rust": "cd src-rust && wasm-pack build --target web",
+    "build:rust": "cd src-rust && wasm-pack build --target web --dev",
     "watch": "tsc -w",
     "electron:build": "electron-builder",
     "dev": "npm run build && npm run start",
@@ -33,4 +33,4 @@
     "@types/jest": "^29.5.0",
     "wasm-pack": "^0.10.0"
   }
-} 
+}
