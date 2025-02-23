@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Stock Tracker</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+        }
+        #app {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .error {
+            color: red;
+            padding: 10px;
+            border: 1px solid red;
+            margin: 10px 0;
+            border-radius: 4px;
+            background-color: #fff5f5;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">        
+        <div class="error" style="display: none;">
+            Ошибка загрузки приложения
+        </div>
+    </div>
+    <script>
+        window.addEventListener('error', function(event) {
+            console.error('Error:', event.error);
+            document.querySelector('.error').style.display = 'block';
+            document.querySelector('.error').textContent = 
+                'Ошибка: ' + (event.error?.message || 'Неизвестная ошибка');
+        });
+    </script>
+    <!-- Загружаем компоненты -->
+    <script type="module" src="components/stock-table.js"></script>
+    <script type="module" src="components/stock-graph.js"></script>
+    <!-- Загружаем основной скрипт -->
+    <script type="module" src="renderer.js"></script>
+</body>
+</html> 
